@@ -1,0 +1,17 @@
+.footer {
+  background-color: #383838; 
+  color: white;
+
+  .footer-nav a {
+    transition: color 0.3s ease;
+  }
+
+  .footer-social a {
+    font-size: 1.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .footer-social a:hover {
+    color: #f5a3b7; 
+  }
+}

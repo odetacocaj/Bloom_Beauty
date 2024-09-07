@@ -1,0 +1,17 @@
+.drawer-content {
+  width: 100vw;
+  background-color: #f9f9fc;
+  height: 100%;
+
+  .drawer-link {
+    padding: 1rem 0;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    color: #383838;
+    text-decoration: none;
+
+    &:hover {
+      color: #f5a3b7;
+    }
+  }
+}
