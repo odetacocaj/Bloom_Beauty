@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.scss";
 import { useState } from "react";
 import logo from "../../assets/images/logo.svg";
@@ -6,14 +6,39 @@ import searchLogo from "../../assets/images/Search.svg";
 import cart from "../../assets/images/cart.svg";
 import account from "../../assets/images/account.svg";
 import menu from "../../assets/images/menu.svg";
-import CustomDrawer from "../CustomDrawer/CustomDrawer";
+import CustomDrawer from "../MobileNavigation/MobileNavigation";
 import CustomButton from "../CustomButton/CustomButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import { useAuth } from "../../hooks/useAuth";
+import { useDispatch } from "react-redux";
+import { logout } from "../../redux/authSlice";
 const Header = () => {
   const [open, setOpen] = useState(false);
-
+  const { isLoggedIn } = useAuth();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+  const handleNavigate = (path) => {
+    handleMenuClose();
+    navigate(path);
+  };
+  const handleLogout = () => {
+    handleMenuClose();
+    dispatch(logout());
+  };
+
   return (
     <>
       <CustomDrawer open={open} toggleDrawer={toggleDrawer} />
@@ -22,7 +47,7 @@ const Header = () => {
           onClick={toggleDrawer(true)}
           className="uppercase lg:hidden flex flex-col items-center justify-center"
         >
-          <img src={menu} />
+          <img src={menu} alt="Menu" />
           Menu
         </CustomButton>
         <div className="navbar-logo flex items-center">
@@ -30,7 +55,7 @@ const Header = () => {
             <img src={logo} alt="Logo" />
           </Link>
         </div>
-        <div className="navbar-menu  hidden lg:flex items-center gap-10">
+        <div className="navbar-menu hidden lg:flex items-center gap-10">
           <Link to="/products">Shop All</Link>
           <Link to="/bestsellers">BestSellers</Link>
           <Link to="/about">About Us</Link>
@@ -42,10 +67,46 @@ const Header = () => {
             <img src={searchLogo} alt="Search" />
             Search
           </button>
-          <button className="user-button">
-            <img src={account} alt="Account" />
-            Account
-          </button>
+          <div>
+            <button className="user-button" onClick={handleClick}>
+              <img src={account} alt="Account" />
+              Account
+            </button>
+            <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={openMenu}
+              onClose={() => setAnchorEl(null)}
+              MenuListProps={{
+                "aria-labelledby": "basic-button",
+              }}
+              sx={{
+                "& .MuiPaper-root": {
+                  backgroundColor: "#fff",
+                  borderRadius: "4px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                },
+              }}
+            >
+              {isLoggedIn
+                ? [
+                    <MenuItem key="profile" onClick={() => handleNavigate("/profile")}>
+                      My Profile
+                    </MenuItem>,
+                    <MenuItem key="logout" onClick={() => handleLogout()}>
+                      Logout
+                    </MenuItem>,
+                  ]
+                : [
+                    <MenuItem key="login" onClick={() => handleNavigate("/login")}>
+                      Login
+                    </MenuItem>,
+                    <MenuItem key="signup" onClick={() => handleNavigate("/signup")}>
+                      Signup
+                    </MenuItem>,
+                  ]}
+            </Menu>
+          </div>
           <button className="user-button">
             <img src={cart} alt="Cart" />
             Cart

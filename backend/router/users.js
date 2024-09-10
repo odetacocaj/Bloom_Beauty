@@ -3,110 +3,150 @@ const router = express.Router();
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-router.get(`/`, async (req, res) => {
-  const userList = await User.find().select("-passwordHash");
 
-  if (!userList) {
-    res.status(500).json({ success: false, message: "error fetching products" });
+const verifyToken = (req, res, next) => {
+  const token = req.headers["x-auth-token"];
+  if (!token) return res.status(403).send("Access denied.");
+
+  jwt.verify(token, process.env.secret, (err, decoded) => {
+    if (err) return res.status(401).send("Invalid token.");
+    req.user = decoded;
+    next();
+  });
+};
+
+router.get("/verify", (req, res) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).send("No token provided");
   }
-  res.send(userList);
+
+  try {
+    const secret = process.env.secret;
+    const decoded = jwt.verify(token, secret);
+    res.status(200).send({ isValid: true, user: decoded });
+  } catch (err) {
+    res.status(401).send("Invalid token");
+  }
 });
 
-router.post(`/`, async (req, res) => {
-  let user = new User({
-    name: req.body.name,
-    email: req.body.email,
-    passwordHash: bcrypt.hashSync(req.body.password, 10),
-    phone: req.body.phone,
-    isAdmin: req.body.isAdmin,
-    apartment: req.body.apartment,
-    zip: req.body.zip,
-    city: req.body.city,
-    country: req.body.country,
-  });
-
-  user = await user.save();
-  if (!user) {
-    return res.status(404).json("Failed to create user!");
+router.get(`/`, async (req, res) => {
+  try {
+    const userList = await User.find().select("-passwordHash");
+    res.send(userList);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching users", error });
   }
+});
 
-  res.send(user);
+router.post(`/`, verifyToken, async (req, res) => {
+  if (!req.user.isAdmin) return res.status(403).send("Access denied.");
+
+  try {
+    let user = new User({
+      name: req.body.name,
+      email: req.body.email,
+      passwordHash: bcrypt.hashSync(req.body.password, 10),
+      phone: req.body.phone,
+      isAdmin: req.body.isAdmin,
+      apartment: req.body.apartment,
+      zip: req.body.zip,
+      city: req.body.city,
+      country: req.body.country,
+    });
+
+    user = await user.save();
+    res.send(user);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to create user", error });
+  }
 });
 
 router.post(`/register`, async (req, res) => {
-  let user = new User({
-    name: req.body.name,
-    lastname: req.body.lastname,
-    email: req.body.email,
-    color: req.body.color,
-    passwordHash: bcrypt.hashSync(req.body.password, 10),
-    phone: req.body.phone,
-    isAdmin: req.body.isAdmin,
-    address: req.body.address,
-    zip: req.body.zip,
-    city: req.body.city,
-    country: req.body.country,
-  });
+  try {
+    let user = new User({
+      name: req.body.name,
+      lastname: req.body.lastname,
+      email: req.body.email,
+      color: req.body.color,
+      passwordHash: bcrypt.hashSync(req.body.password, 10),
+      phone: req.body.phone,
+      isAdmin: req.body.isAdmin,
+      address: req.body.address,
+      zip: req.body.zip,
+      city: req.body.city,
+      country: req.body.country,
+    });
 
-  user = await user.save();
-  if (!user) {
-    return res.status(404).json("Failed to register!");
+    user = await user.save();
+    res.send(user);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to register", error });
   }
-
-  res.send(user);
 });
 
 router.get(`/:id`, async (req, res) => {
-  const user = await User.findById(req.params.id).select("-passwordHash");
-  if (!user) {
-    return res.status(404).json("Failed to find user!");
+  try {
+    const user = await User.findById(req.params.id).select("-passwordHash");
+    if (!user) return res.status(404).send("User not found.");
+    res.send(user);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching user", error });
   }
-  return res.status(200).send(user);
 });
 
 router.post("/login", async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-  const secret = process.env.secret;
-  if (!user) {
-    return res.status(404).send("User not found!");
-  }
+  try {
+    const user = await User.findOne({ email: req.body.email });
+    if (!user) return res.status(404).send("User not found.");
 
-  if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        isAdmin: user.isAdmin,
-      },
-      secret,
-      { expiresIn: "1d" },
-    );
-    res.status(200).send({ user: user.email, token: token });
-  } else {
-    res.status(400).send("Password is incorrect!");
+    if (bcrypt.compareSync(req.body.password, user.passwordHash)) {
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          isAdmin: user.isAdmin,
+        },
+        process.env.secret,
+        { expiresIn: "1d" },
+      );
+      res.status(200).send({ user: user.email, token: token, isAdmin: user.isAdmin });
+    } else {
+      res.status(400).send("Incorrect password.");
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Login failed", error });
   }
 });
 
-router.get(`/get/count`, async (req, res) => {
-  const userCount = await User.countDocuments();
+router.get(`/get/count`, verifyToken, async (req, res) => {
+  if (!req.user.isAdmin) return res.status(403).send("Access denied.");
 
-  if (!userCount) {
-    res.status(500).json({ success: false, message: "error fetching users number" });
+  try {
+    const userCount = await User.countDocuments();
+    res.send({ userCount: userCount });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching user count", error });
   }
-  res.send({ userCount: userCount });
 });
 
-router.delete("/:id", (req, res) => {
-  User.findByIdAndDelete(req.params.id)
-    .then((user) => {
-      if (user) {
-        return res.status(200).json({ success: true, message: "User deleted successfully!" });
-      } else {
-        return res.status(404).json({ success: false, message: "User not found!" });
-      }
-    })
-    .catch((err) => {
-      return res.status(400).json({ success: false, error: err });
-    });
+router.delete("/:id", verifyToken, async (req, res) => {
+  if (!req.user.isAdmin) return res.status(403).send("Access denied.");
+
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (user) {
+      res.status(200).json({ success: true, message: "User deleted successfully!" });
+    } else {
+      res.status(404).json({ success: false, message: "User not found." });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error });
+  }
+});
+
+router.post("/logout", (req, res) => {
+  res.status(200).send("Logged out successfully");
 });
 
 module.exports = router;

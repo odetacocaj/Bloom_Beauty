@@ -19,3 +19,12 @@ export const loginUser = async (userData) => {
     throw error.response.data;
   }
 };
+
+export const logoutUser = async () => {
+  try {
+    await axios.post(`${import.meta.env.VITE_API_URL}/users/logout`, {});
+  } catch (error) {
+    console.error("Logout error:", error.response?.data || error.message);
+    throw error.response?.data || error.message;
+  }
+};
