@@ -129,4 +129,55 @@ router.get(`/get/userOrders/:userId`, async (req, res) => {
   res.send(userOrderList);
 });
 
+router.get("/best-selling", async (req, res) => {
+  try {
+    const bestSellingProducts = await Order.aggregate([
+      { $unwind: "$orderItems" }, 
+      {
+        $lookup: {
+          from: "orderitems", 
+          localField: "orderItems",
+          foreignField: "_id",
+          as: "orderItemDetails",
+        },
+      },
+      { $unwind: "$orderItemDetails" },
+      {
+        $group: {
+          _id: "$orderItemDetails.product",
+          totalQuantity: { $sum: "$orderItemDetails.quantity" },
+        },
+      },
+      { $sort: { totalQuantity: -1 } }, // Sort by totalQuantity in descending order
+      { $limit: 5 },
+      {
+        $lookup: {
+          from: "products", // Collection name for Product
+          localField: "_id",
+          foreignField: "_id",
+          as: "productDetails",
+        },
+      },
+      { $unwind: "$productDetails" },
+      {
+        $project: {
+          _id: 0,
+          product: "$productDetails",
+          totalQuantity: 1,
+        },
+      },
+    ]);
+
+    if (bestSellingProducts.length === 0) {
+      return res.status(404).json({ success: false, message: "No best-selling products found" });
+    }
+
+    res.json(bestSellingProducts);
+  } catch (error) {
+    console.error("Error fetching best-selling products:", error);
+    res.status(500).json({ success: false, message: "Error fetching best-selling products", error: error.message });
+  }
+});
+
+
 module.exports = router;

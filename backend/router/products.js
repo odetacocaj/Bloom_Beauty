@@ -28,6 +28,31 @@ const storage = multer.diskStorage({
   },
 });
 
+router.get("/latest", async (req, res) => {
+  const numProducts = parseInt(req.query.count, 10) || 5; 
+
+  if (isNaN(numProducts) || numProducts <= 0) {
+    return res.status(400).json({ success: false, message: "Invalid count parameter" });
+  }
+
+  try {
+    const latestProducts = await Product.find({})
+      .sort({ dateCreated: -1 })
+      .limit(numProducts)
+      .populate("category");
+
+    if (!latestProducts.length) {
+      return res.status(404).json({ success: false, message: "No products found" });
+    }
+
+    res.json(latestProducts);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Error fetching products", error: error.message });
+  }
+});
+
 const uploadOptions = multer({ storage: storage });
 router.get(`/`, async (req, res) => {
   let filter = {};

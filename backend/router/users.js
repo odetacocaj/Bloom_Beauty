@@ -16,7 +16,6 @@ router.post(`/`, async (req, res) => {
   let user = new User({
     name: req.body.name,
     email: req.body.email,
-    color: req.body.color,
     passwordHash: bcrypt.hashSync(req.body.password, 10),
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
@@ -37,12 +36,13 @@ router.post(`/`, async (req, res) => {
 router.post(`/register`, async (req, res) => {
   let user = new User({
     name: req.body.name,
+    lastname: req.body.lastname,
     email: req.body.email,
     color: req.body.color,
     passwordHash: bcrypt.hashSync(req.body.password, 10),
     phone: req.body.phone,
     isAdmin: req.body.isAdmin,
-    apartment: req.body.apartment,
+    address: req.body.address,
     zip: req.body.zip,
     city: req.body.city,
     country: req.body.country,
@@ -75,7 +75,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       {
         userId: user.id,
-        isAdmin: user.isAdmin
+        isAdmin: user.isAdmin,
       },
       secret,
       { expiresIn: "1d" },
@@ -108,6 +108,5 @@ router.delete("/:id", (req, res) => {
       return res.status(400).json({ success: false, error: err });
     });
 });
-
 
 module.exports = router;

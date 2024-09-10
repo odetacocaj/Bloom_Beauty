@@ -80,7 +80,7 @@ const Footer = () => {
           </div>
         </div>
       </footer>
-      <div className="flex flex-col pt-4 pb-4 w-full items-center justify-center gap-5 bg-[#252525] text-[#BFB9CF]">
+      <div className="flex flex-col  pb-4 w-full items-center justify-center gap-5 bg-[#252525] text-[#BFB9CF]">
         <Divider className="bg-[#BFB9CF] w-full" />
         <h4>© 2024 Bloom Beauty</h4>
       </div>
