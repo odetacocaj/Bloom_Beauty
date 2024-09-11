@@ -1,11 +1,9 @@
 import Banner from "../../components/Banner/Banner";
 import bannerImage from "../../assets/images/banner.svg";
-// import ProductSlider from "../../components/ProductSlider/ProductSlider";
-import { useGetLatestProducts } from "../../api/hooks/useProduct.js";
+import ExploreSection from "../../components/ExploreSection/ExploreSection.jsx";
+import { exploreSectionProducts } from "../../assets/dummy_data/ExploreSectionProducts.js";
+import SkinQuizSection from "../../components/SkinQuizSection/SkinQuizSection.jsx";
 function Home() {
-  const { data: productss } = useGetLatestProducts(12);
-  console.log("🚀 ~ Home ~ productss:", productss);
-
   return (
     <>
       <Banner
@@ -13,7 +11,26 @@ function Home() {
         subtitle="Great gift for yourself and loved ones"
         backgroundImage={bannerImage}
       />
-      {/* <ProductSlider products={productss} title={"New Arrivals"} link={"/"} /> */}
+      <div>
+        <ExploreSection
+          title={exploreSectionProducts[0].title}
+          image={exploreSectionProducts[0].image}
+          description={exploreSectionProducts[0].description}
+          productLink={exploreSectionProducts[0].link}
+          hashtags={exploreSectionProducts[0].hashtags}
+        />
+        <ExploreSection
+          title={exploreSectionProducts[1].title}
+          image={exploreSectionProducts[1].image}
+          description={exploreSectionProducts[1].description}
+          hashtags={exploreSectionProducts[1].hashtags}
+          productLink={exploreSectionProducts[1].link}
+          direction={"flex-row-reverse"}
+        />
+      </div>
+      <div>
+        <SkinQuizSection />
+      </div>
     </>
   );
 }

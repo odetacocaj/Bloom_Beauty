@@ -5,3 +5,29 @@
     background-color: #323232;
   }
 }
+
+.explore-shop-button {
+  background-color: #f5a3b7;
+  transition: background-color 0.3s ease;
+  padding: 10px;
+  border-radius: 4px;
+  width: 100%;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  &:hover {
+    background-color: #323232;
+  }
+}
+.explore-more-button {
+  padding: 10px 10px 10px 12px;
+  border-radius: 4px;
+  width: 100%;
+  color: black;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: left;
+  &:hover {
+    text-decoration: underline;
+  }
+}
