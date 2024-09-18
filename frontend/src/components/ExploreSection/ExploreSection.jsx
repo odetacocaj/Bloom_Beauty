@@ -4,13 +4,16 @@ import CustomButton from "../CustomButton/CustomButton";
 function ExploreSection({ direction, hashtags, description, image, productLink, title }) {
   const navigate = useNavigate();
   const flexDirection = direction || "flex-row";
+
   const handleClick = (link) => {
     navigate(link);
   };
   return (
     <div className="flex flex-col pl-[10%] pr-[10%] pt-[3%]">
       <div
-        className={`top-section flex flex-col-reverse sm:flex-nowrap sm:${flexDirection} justify-center items-center gap-6`}
+        className={`top-section flex flex-col-reverse sm:flex-nowrap justify-center items-center gap-6 ${
+          flexDirection === "flex-row-reverse" ? "sm:flex-row-reverse" : "sm:flex-row"
+        }`}
       >
         <div className="flex flex-col gap-7 w-[100%] sm:w-[50%]">
           <h1 className="font-medium text-2xl lg:text-4xl">{title}</h1>
@@ -37,7 +40,11 @@ function ExploreSection({ direction, hashtags, description, image, productLink, 
             </CustomButton>
           </div>
         </div>
-        <div className="flex justify-end w-full sm:w-[50%]">
+        <div
+          className={`flex w-full sm:w-[50%] ${
+            flexDirection === "flex-row-reverse" ? "justify-start" : "justify-end"
+          }`}
+        >
           <img src={image} />
         </div>
       </div>

@@ -1,0 +1,9 @@
+.filters-container {
+  box-shadow: 0px 2px 10px 0px #b9a6bd1a;
+}
+
+@media (max-width: 600px) {
+  .filters-container {
+    box-shadow: none;
+  }
+}

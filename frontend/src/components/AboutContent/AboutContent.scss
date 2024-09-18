@@ -1,0 +1,27 @@
+.about-section-title {
+  font-weight: 700;
+  font-size: 24px;
+  text-transform: uppercase;
+  color: #383838;
+}
+.about-section-text {
+  font-weight: 400;
+  font-size: 16px;
+  color: #383838;
+}
+.about-list {
+  display: flex;
+  padding-left: 20px;
+  color: #383838;
+  flex-direction: column;
+  gap: 5px;
+  list-style-type: disc;
+  .li-title {
+    font-weight: 500;
+    color: #383838;
+  }
+}
+.about-subtitle {
+  font-weight: 700;
+  color: #383838;
+}

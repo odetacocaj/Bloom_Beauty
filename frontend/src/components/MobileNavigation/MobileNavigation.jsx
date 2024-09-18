@@ -78,7 +78,7 @@ const MobileNavigation = ({ open, toggleDrawer }) => {
               )}
             </AccordionDetails>
           </Accordion>
-          <Link to="/" onClick={toggleDrawer(false)} className="drawer-link">
+          <Link to="/products" onClick={toggleDrawer(false)} className="drawer-link">
             Shop All
           </Link>
           <Link to="/bestsellers" onClick={toggleDrawer(false)} className="drawer-link">

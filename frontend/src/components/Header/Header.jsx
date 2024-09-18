@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.scss";
 import { useState } from "react";
+import Badge from "@mui/material/Badge";
 import logo from "../../assets/images/logo.svg";
 import searchLogo from "../../assets/images/Search.svg";
 import cart from "../../assets/images/cart.svg";
@@ -11,16 +12,25 @@ import CustomButton from "../CustomButton/CustomButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { useAuth } from "../../hooks/useAuth";
+import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { logout } from "../../redux/authSlice";
+import Cart from "../Cart/Cart";
 const Header = () => {
   const [open, setOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
   const { isLoggedIn } = useAuth();
+  const cartContent = useSelector((state) => state.cart);
+  const totalItems = cartContent.reduce((total, item) => total + item.quantity, 0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
+  const toggleCartDrawer = (newOpen) => () => {
+    setCartOpen(newOpen);
+  };
+
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -42,6 +52,7 @@ const Header = () => {
   return (
     <>
       <CustomDrawer open={open} toggleDrawer={toggleDrawer} />
+      <Cart open={cartOpen} toggleDrawer={toggleCartDrawer} />
       <nav className="header text-[13px] md:text-base pt-5 pb-5">
         <CustomButton
           onClick={toggleDrawer(true)}
@@ -107,16 +118,23 @@ const Header = () => {
                   ]}
             </Menu>
           </div>
-          <button className="user-button">
-            <img src={cart} alt="Cart" />
+          <CustomButton onClick={toggleCartDrawer(true)} className="user-button">
+            <Badge badgeContent={totalItems} color="primary">
+              <img src={cart} alt="Cart" />
+            </Badge>
             Cart
-          </button>
+          </CustomButton>
         </div>
 
-        <button className="uppercase lg:hidden flex flex-col items-center justify-center">
-          <img src={cart} alt="Cart" />
+        <CustomButton
+          onClick={toggleCartDrawer(true)}
+          className="uppercase lg:hidden flex flex-col items-center justify-center"
+        >
+          <Badge badgeContent={totalItems} color="primary">
+            <img src={cart} alt="Cart" />
+          </Badge>
           Cart
-        </button>
+        </CustomButton>
       </nav>
     </>
   );

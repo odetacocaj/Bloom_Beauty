@@ -9,6 +9,20 @@ const productSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  richDescription: {
+    type: String,
+    required: false,
+  },
+  ingredients: [
+    {
+      type: String,
+      required: false,
+    },
+  ],
+  instructions: {
+    type: String,
+    required: false,
+  },
   image: {
     type: String,
     default: "",
@@ -47,6 +61,11 @@ const productSchema = mongoose.Schema({
   dateCreated: {
     type: Date,
     default: Date.now,
+  },
+  skinType: {
+    type: String,
+    enum: ["dry", "oily", "combination", "normal"],
+    required: false,
   },
   isFeatured: {
     type: Boolean,

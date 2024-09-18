@@ -13,7 +13,10 @@ export default {
         offWhite: "#F9F9FC",
       },
       fontFamily: {
-        poppins: ["Poppins", "sans-serif"],
+        sans: ["Poppins", "sans-serif"],
+      },
+      boxShadow: {
+        custom: "0px 2px 10px 0px #B9A6BD1A",
       },
     },
   },

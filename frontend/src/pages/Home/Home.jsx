@@ -3,6 +3,7 @@ import bannerImage from "../../assets/images/banner.svg";
 import ExploreSection from "../../components/ExploreSection/ExploreSection.jsx";
 import { exploreSectionProducts } from "../../assets/dummy_data/ExploreSectionProducts.js";
 import SkinQuizSection from "../../components/SkinQuizSection/SkinQuizSection.jsx";
+import SocialMediaSection from "../../components/SocialMediaSection/SocialMediaSection.jsx";
 function Home() {
   return (
     <>
@@ -28,8 +29,11 @@ function Home() {
           direction={"flex-row-reverse"}
         />
       </div>
-      <div>
+      <div className="pb-[10%] pt-[15%]">
         <SkinQuizSection />
+      </div>
+      <div className="">
+        <SocialMediaSection />
       </div>
     </>
   );
