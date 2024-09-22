@@ -1,5 +1,6 @@
 import { Divider } from "@mui/material";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   decrementQuantity,
@@ -17,9 +18,11 @@ function Checkout() {
   const [step, setStep] = useState(1);
   const [shippingMethod, setShippingMethod] = useState("normal");
   const [deliveryMethod, setDeliveryMethod] = useState("shipping");
-
+  const cart = useSelector((state) => state.cart);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
+    orderItems: [],
     lastname: "",
     email: "",
     phone: "",
@@ -31,7 +34,7 @@ function Checkout() {
     shippingMethod: "normal",
     paymentData: {},
   });
-  const cart = useSelector((state) => state.cart);
+
   const dispatch = useDispatch();
   const subtotal = useSelector(selectCartSubtotal);
 
@@ -62,19 +65,26 @@ function Checkout() {
   };
 
   const handlePaymentFormSubmit = (paymentData) => {
+    const orderItems = cart.map((item) => ({
+      id: item.id,
+      quantity: item.quantity,
+    }));
+
     setFormData((prev) => ({
       ...prev,
       paymentData,
+      orderItems,
     }));
 
-    handleSubmitOrder(formData);
+    handleSubmitOrder({
+      ...formData,
+      orderItems, // Make sure to pass orderItems to handleSubmitOrder
+    });
   };
 
   const handleSubmitOrder = async (orderData) => {
-    // Add logic to send orderData to your backend
+    navigate("/");
     console.log("Submitting order data:", orderData);
-    // Example:
-    // await api.submitOrder(orderData);
   };
 
   const shippingFee = deliveryMethod === "pickup" ? 0 : shippingMethod === "fast" ? 5 : 2;
@@ -123,7 +133,14 @@ function Checkout() {
               setShippingMethod={setShippingMethod}
             />
           )}
-          {step === 3 && <PaymentForm onSubmit={handlePaymentFormSubmit} />}
+          {step === 3 && (
+            <PaymentForm
+              amount={total}
+              currency="usd"
+              description={`Order for ${formData.name}}`}
+              onSubmit={handlePaymentFormSubmit}
+            />
+          )}
         </div>
       </div>
       <div className="flex flex-col p-3 h-full bg-white">

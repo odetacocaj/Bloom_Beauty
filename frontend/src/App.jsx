@@ -18,6 +18,14 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProfilePage from "./pages/Profile/Profile.jsx";
 import Checkout from "./pages/Checkout/Checkout.jsx";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+// Load your Stripe publishable key
+const stripePromise = loadStripe(
+  "pk_test_51Q1q4SFmbbTFKsyca0hP63QP5BqI11CDSwD9SyhuTBjYBzKo8lbgRYzCQjFF8thg9gUDQaLr6pX8phU9giTQl3x100ZzFDzqkd",
+);
+
 function App() {
   return (
     <Router>
@@ -25,49 +33,51 @@ function App() {
         <Header />
         <main className="flex-grow">
           <ToastContainer />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/login"
-              element={
-                <RedirectIfLoggedIn redirectTo="/">
-                  <Login />
-                </RedirectIfLoggedIn>
-              }
-            />
-            <Route path="/signup" element={<Signup />} />
-            <Route
-              path="/orders"
-              element={
-                <ProtectedRoute>
-                  <Orders />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/products/:id" element={<ProductPage />} />
-            <Route path="/products" element={<Products />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/faq" element={<Faq />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/bestsellers" element={<Bestsellers />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Elements stripe={stripePromise}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route
+                path="/login"
+                element={
+                  <RedirectIfLoggedIn redirectTo="/">
+                    <Login />
+                  </RedirectIfLoggedIn>
+                }
+              />
+              <Route path="/signup" element={<Signup />} />
+              <Route
+                path="/orders"
+                element={
+                  <ProtectedRoute>
+                    <Orders />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/products/:id" element={<ProductPage />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/faq" element={<Faq />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/bestsellers" element={<Bestsellers />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Elements>
         </main>
         <Footer />
       </div>

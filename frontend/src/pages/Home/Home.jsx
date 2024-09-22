@@ -4,7 +4,14 @@ import ExploreSection from "../../components/ExploreSection/ExploreSection.jsx";
 import { exploreSectionProducts } from "../../assets/dummy_data/ExploreSectionProducts.js";
 import SkinQuizSection from "../../components/SkinQuizSection/SkinQuizSection.jsx";
 import SocialMediaSection from "../../components/SocialMediaSection/SocialMediaSection.jsx";
+import ProductSlider from "../../components/ProductSlider/ProductSlider.jsx";
+import { useGetAllProducts } from "../../api/hooks/useProduct.js";
 function Home() {
+  const { data: bestsellers = [] } = useGetAllProducts({
+    bestsellers: true,
+  });
+  const { data: products = [] } = useGetAllProducts();
+  console.log("🚀 ~ Home ~ products:", products);
   return (
     <>
       <Banner
@@ -12,6 +19,14 @@ function Home() {
         subtitle="Great gift for yourself and loved ones"
         backgroundImage={bannerImage}
       />
+      <div>
+        <ProductSlider products={products.products} title={"New Arrivals"} link={"/products"} />
+        <ProductSlider
+          products={bestsellers.products}
+          title={"Bestsellers"}
+          link={"/bestsellers"}
+        />
+      </div>
       <div>
         <ExploreSection
           title={exploreSectionProducts[0].title}

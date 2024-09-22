@@ -90,7 +90,7 @@ function Filters() {
     });
   };
   return (
-    <div className="filters-container flex flex-col p-5 bg-white w-full h-fit">
+    <div className="filters-container flex flex-col p-8 bg-white w-full h-fit">
       <div className="flex">
         <h1 className="uppercase text-2xl font-semibold">Filters</h1>
       </div>
@@ -127,7 +127,7 @@ function Filters() {
             <h1 className="font-medium text-[14px]">Brand</h1>
           </AccordionSummary>
           <AccordionDetails>
-            <FormControl component="fieldset">
+            <FormControl component="fieldset" className="gap-4">
               {brands.map((brand) => (
                 <FormControlLabel
                   key={brand}

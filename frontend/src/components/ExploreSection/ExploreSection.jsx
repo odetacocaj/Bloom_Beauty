@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import CustomButton from "../CustomButton/CustomButton";
 
-function ExploreSection({ direction, hashtags, description, image, productLink, title }) {
+function ExploreSection({ direction, hashtags, description, image, title }) {
   const navigate = useNavigate();
   const flexDirection = direction || "flex-row";
 
@@ -29,12 +29,12 @@ function ExploreSection({ direction, hashtags, description, image, productLink, 
             ))}
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
-            <CustomButton onClick={() => handleClick(productLink)} className="explore-shop-button">
+            <CustomButton onClick={() => handleClick("/products")} className="explore-shop-button">
               Shop
             </CustomButton>
             <CustomButton
               className="explore-more-button text-center sm:text-left"
-              onClick={() => handleClick("/shop-all")}
+              onClick={() => handleClick("/products")}
             >
               Explore More →
             </CustomButton>

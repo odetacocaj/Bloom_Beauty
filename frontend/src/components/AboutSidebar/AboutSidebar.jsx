@@ -7,15 +7,12 @@ const StyledTab = styled(Tab)(() => ({
   fontSize: "16px",
   color: "black",
   textTransform: "none",
-  "&.Mui-selected": {
-    color: "#F5A3B7",
-  },
   "&:hover": {
     color: "#F5A3B7",
   },
 }));
 
-const AboutSidebar = ({ sections, onSelectSection }) => {
+const AboutSidebar = ({ sections, onSelectSection, selectedSection }) => {
   const handleChange = (event, newValue) => {
     onSelectSection(newValue);
   };
@@ -25,16 +22,28 @@ const AboutSidebar = ({ sections, onSelectSection }) => {
       <Tabs
         orientation="vertical"
         variant="scrollable"
-        value={false}
+        value={selectedSection}
         onChange={handleChange}
         aria-label="About sections"
+        sx={{
+          ".MuiTabs-indicator": {
+            backgroundColor: "black",
+          },
+        }}
       >
         {sections.map((section) => (
-          <StyledTab key={section.id} label={section.title} value={section.id} />
+          <StyledTab
+            key={section.id}
+            label={section.title}
+            value={section.id}
+            style={{
+              backgroundColor: selectedSection === section.id ? "#F5A3B7" : "transparent",
+              color: selectedSection === section.id ? "white" : "black",
+            }}
+          />
         ))}
       </Tabs>
     </div>
   );
 };
-
 export default AboutSidebar;

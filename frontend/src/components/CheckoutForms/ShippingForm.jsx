@@ -13,7 +13,11 @@ function ShippingForm({ shippingMethod, setShippingMethod, onContinue, deliveryM
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onContinue(shippingMethod);
+    const shippingData = {
+      shippingMethod,
+      deliveryMethod,
+    };
+    onContinue(shippingData);
   };
 
   return (

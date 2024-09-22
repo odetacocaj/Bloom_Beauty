@@ -17,7 +17,11 @@ const About = () => {
 
   return (
     <div className="info-page gap-4 flex flex-col sm:flex-row">
-      <AboutSidebar sections={sections} onSelectSection={setSelectedSection} />
+      <AboutSidebar
+        sections={sections}
+        onSelectSection={setSelectedSection}
+        selectedSection={selectedSection}
+      />
       <AboutContent sectionId={selectedSection} sectionTitle={sections[selectedSection]} />
     </div>
   );
