@@ -22,7 +22,6 @@ app.use(authJwt());
 app.use(errorHandler);
 app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 
-
 //Routers
 app.use(`${api}/products`, productsRouter);
 app.use(`${api}/categories`, categoriesRouter);

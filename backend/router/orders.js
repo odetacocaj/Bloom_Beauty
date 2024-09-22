@@ -1,7 +1,9 @@
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 const Order = require("../models/Order");
 const OrderItem = require("../models/OrderItem");
+const { verifyToken } = require("./users.js");
 router.get(`/`, async (req, res) => {
   const orderList = await Order.find().populate("user", "name email").sort({ dateOrdered: -1 });
 
@@ -21,49 +23,63 @@ router.get(`/:id`, async (req, res) => {
   res.send(order);
 });
 
-router.post(`/`, async (req, res) => {
-  const orderItemsIds = Promise.all(
-    req.body.orderItems.map(async (orderItem) => {
-      let newOrderItem = new OrderItem({
-        quantity: orderItem.quantity,
-        product: orderItem.product,
-      });
-      newOrderItem = await newOrderItem.save();
+router.post(`/`, verifyToken, async (req, res) => {
+  try {
+    // Create order items
+    const orderItemsIds = await Promise.all(
+      req.body.orderItems.map(async (orderItem) => {
+        let newOrderItem = new OrderItem({
+          quantity: orderItem.quantity,
+          product: orderItem.product,
+        });
+        newOrderItem = await newOrderItem.save();
+        return newOrderItem._id;
+      }),
+    );
 
-      return newOrderItem._id;
-    }),
-  );
+    // Calculate total prices
+    const totalPrices = await Promise.all(
+      orderItemsIds.map(async (orderItemId) => {
+        const orderItem = await OrderItem.findById(orderItemId).populate("product", "price");
+        return orderItem.product.price * orderItem.quantity;
+      }),
+    );
 
-  const orderItemsIdsResloved = await orderItemsIds;
+    const subtotal = totalPrices.reduce((a, b) => a + b, 0);
+    let shippingFee = 0;
 
-  const totalPrices = await Promise.all(
-    orderItemsIdsResloved.map(async (orderItemId) => {
-      const orderItem = await OrderItem.findById(orderItemId).populate("product", "price");
-      const totalPrice = orderItem.product.price * orderItem.quantity;
-      return totalPrice;
-    }),
-  );
-  const totalPrice = totalPrices.reduce((a, b) => a + b, 0);
+    if (req.body.deliveryMethod === "shipping") {
+      shippingFee = req.body.shippingMethod === "fast" ? 5 : 2;
+    }
 
-  let order = new Order({
-    orderItems: orderItemsIdsResloved,
-    shippingAddress1: req.body.shippingAddress1,
-    shippingAddress2: req.body.shippingAddress2,
-    city: req.body.city,
-    zip: req.body.zip,
-    country: req.body.country,
-    phone: req.body.phone,
-    status: req.body.status,
-    totalPrice: totalPrice,
-    user: req.body.user,
-  });
+    const totalPrice = subtotal + shippingFee;
 
-  order = await order.save();
-  if (!order) {
-    return res.status(404).json("Failed to create order");
+    // Create new order
+    let order = new Order({
+      orderItems: orderItemsIds,
+      shippingAddress: req.body.shippingAddress,
+      city: req.body.city,
+      zip: req.body.zip,
+      country: req.body.country,
+      phone: req.body.phone,
+      status: req.body.status,
+      totalPrice: totalPrice,
+      user: req.user.userId, // Use the user ID from the token
+      shippingMethod: req.body.deliveryMethod === "pickup" ? "none" : req.body.shippingMethod,
+      deliveryMethod: req.body.deliveryMethod,
+    });
+
+    order = await order.save();
+    if (!order) {
+      return res.status(404).json("Failed to create order");
+    }
+
+    res.send(order);
+  } catch (error) {
+    res
+      .status(400)
+      .json({ success: false, message: "Failed to create order", error: error.message });
   }
-
-  res.send(order);
 });
 
 router.put(`/:id`, async (req, res) => {
@@ -128,56 +144,5 @@ router.get(`/get/userOrders/:userId`, async (req, res) => {
   }
   res.send(userOrderList);
 });
-
-router.get("/best-selling", async (req, res) => {
-  try {
-    const bestSellingProducts = await Order.aggregate([
-      { $unwind: "$orderItems" }, 
-      {
-        $lookup: {
-          from: "orderitems", 
-          localField: "orderItems",
-          foreignField: "_id",
-          as: "orderItemDetails",
-        },
-      },
-      { $unwind: "$orderItemDetails" },
-      {
-        $group: {
-          _id: "$orderItemDetails.product",
-          totalQuantity: { $sum: "$orderItemDetails.quantity" },
-        },
-      },
-      { $sort: { totalQuantity: -1 } }, // Sort by totalQuantity in descending order
-      { $limit: 5 },
-      {
-        $lookup: {
-          from: "products", // Collection name for Product
-          localField: "_id",
-          foreignField: "_id",
-          as: "productDetails",
-        },
-      },
-      { $unwind: "$productDetails" },
-      {
-        $project: {
-          _id: 0,
-          product: "$productDetails",
-          totalQuantity: 1,
-        },
-      },
-    ]);
-
-    if (bestSellingProducts.length === 0) {
-      return res.status(404).json({ success: false, message: "No best-selling products found" });
-    }
-
-    res.json(bestSellingProducts);
-  } catch (error) {
-    console.error("Error fetching best-selling products:", error);
-    res.status(500).json({ success: false, message: "Error fetching best-selling products", error: error.message });
-  }
-});
-
 
 module.exports = router;

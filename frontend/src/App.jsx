@@ -14,12 +14,17 @@ import About from "./pages/About/About.jsx";
 import Faq from "./pages/FAQs/Faq.jsx";
 import Cart from "./pages/Cart/Cart.jsx";
 import ProductPage from "./pages/ProductPage/ProductPage.jsx";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import ProfilePage from "./pages/Profile/Profile.jsx";
+import Checkout from "./pages/Checkout/Checkout.jsx";
 function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
         <Header />
         <main className="flex-grow">
+          <ToastContainer />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route
@@ -36,6 +41,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Orders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/checkout"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
                 </ProtectedRoute>
               }
             />

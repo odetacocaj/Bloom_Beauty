@@ -8,12 +8,9 @@ const orderSchema = mongoose.Schema({
       required: true,
     },
   ],
-  shippingAddress1: {
+  shippingAddress: {
     type: String,
     required: true,
-  },
-  shippingAddress2: {
-    type: String,
   },
   city: {
     type: String,
@@ -46,6 +43,16 @@ const orderSchema = mongoose.Schema({
   dateOrdered: {
     type: Date,
     default: Date.now,
+  },
+  shippingMethod: {
+    type: String,
+    enum: ["none", "normal", "fast"],
+    default: "normal",
+  },
+  deliveryMethod: {
+    type: String,
+    enum: ["shipping", "pickup"],
+    required: true,
   },
 });
 

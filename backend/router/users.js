@@ -5,8 +5,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const verifyToken = (req, res, next) => {
-  const token = req.headers["x-auth-token"];
-  if (!token) return res.status(403).send("Access denied.");
+  const authHeader = req.headers["authorization"];
+  if (!authHeader) return res.status(403).send("Access denied.");
+
+  const token = authHeader.split(" ")[1];
+  if (!token) return res.status(403).send("No token provided.");
 
   jwt.verify(token, process.env.secret, (err, decoded) => {
     if (err) return res.status(401).send("Invalid token.");
@@ -46,6 +49,7 @@ router.post(`/`, verifyToken, async (req, res) => {
   try {
     let user = new User({
       name: req.body.name,
+      lastname: req.body.lastname,
       email: req.body.email,
       passwordHash: bcrypt.hashSync(req.body.password, 10),
       phone: req.body.phone,
@@ -63,6 +67,34 @@ router.post(`/`, verifyToken, async (req, res) => {
   }
 });
 
+router.put("/me/change-password", verifyToken, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).send("User not found.");
+
+    const isMatch = bcrypt.compareSync(currentPassword, user.passwordHash);
+    if (!isMatch) return res.status(400).send("Current password is incorrect.");
+
+    user.passwordHash = bcrypt.hashSync(newPassword, 10);
+    await user.save();
+
+    res.status(200).send({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error changing password", error });
+  }
+});
+
+router.get("/me", verifyToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("-passwordHash");
+    if (!user) return res.status(404).send("User not found.");
+    res.send(user);
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error fetching user details", error });
+  }
+});
 router.post(`/register`, async (req, res) => {
   try {
     let user = new User({
@@ -83,6 +115,26 @@ router.post(`/register`, async (req, res) => {
     res.send(user);
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to register", error });
+  }
+});
+
+router.put("/me", verifyToken, async (req, res) => {
+  const { name, email, lastname } = req.body;
+  console.log("🚀 ~ router.patch ~ name:", name);
+
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) return res.status(404).send("User not found.");
+
+    if (name) user.name = name;
+    if (lastname) user.lastname = lastname;
+    if (email) user.email = email;
+
+    await user.save();
+
+    res.status(200).send({ success: true, message: "Profile updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error updating profile", error });
   }
 });
 
@@ -150,3 +202,4 @@ router.post("/logout", (req, res) => {
 });
 
 module.exports = router;
+module.exports.verifyToken = verifyToken;

@@ -6,6 +6,7 @@ import CustomButton from "../CustomButton/CustomButton";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 const StyledRating = styled(Rating)({
   "& .MuiRating-iconFilled": {
     color: "black",
@@ -19,6 +20,12 @@ function ProductCard({ product }) {
   const handleAddToCart = (product, event) => {
     event.stopPropagation();
     dispatch(addToCart(product));
+    toast.success("Item added to cart!", {
+      position: "bottom-right",
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+    });
   };
   const handleClickProduct = (product) => {
     navigate(`/products/${product.id}`);

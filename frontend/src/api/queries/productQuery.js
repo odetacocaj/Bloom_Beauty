@@ -36,17 +36,17 @@ export const getAllProducts = async (params = {}) => {
   }
 };
 
-export const getBesellers = async () => {
-  try {
-    const url = `${import.meta.env.VITE_API_URL}/products/bestsellers`;
+// export const getBesellers = async () => {
+//   try {
+//     const url = `${import.meta.env.VITE_API_URL}/products/bestsellers`;
 
-    const response = await axios.get(url);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching bestselling products:", error);
-    throw error;
-  }
-};
+//     const response = await axios.get(url);
+//     return response.data;
+//   } catch (error) {
+//     console.error("Error fetching bestselling products:", error);
+//     throw error;
+//   }
+// };
 
 export const getProductById = async (id) => {
   try {

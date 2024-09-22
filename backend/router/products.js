@@ -61,29 +61,29 @@ router.get("/", async (req, res) => {
   try {
     const filter = {};
 
-    // Check if the request is for bestsellers
+    if (req.query.search) {
+      const searchRegex = new RegExp(req.query.search, "i");
+      filter.$or = [{ name: searchRegex }, { description: searchRegex }, { brand: searchRegex }];
+    }
+
     if (req.query.bestsellers === "true") {
       filter.isFeatured = true;
     } else {
-      // Handling multiple categories
       if (req.query.category) {
         const categories = req.query.category.split(",");
         filter.category = { $in: categories };
       }
 
-      // Handling multiple skin types
       if (req.query.skinType) {
         const skinTypes = req.query.skinType.split(",");
         filter.skinType = { $in: skinTypes };
       }
 
-      // Handling multiple brands
       if (req.query.brand) {
         const brands = req.query.brand.split(",");
         filter.brand = { $in: brands };
       }
 
-      // Handling price range
       if (req.query.minPrice || req.query.maxPrice) {
         filter.price = {};
         if (req.query.minPrice) {
@@ -95,12 +95,10 @@ router.get("/", async (req, res) => {
       }
     }
 
-    // Pagination
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Sorting
     const sort = {};
     if (req.query.sort === "latest") {
       sort.createdAt = -1;
