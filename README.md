@@ -58,7 +58,7 @@ Make sure you have the following installed on your system:
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/your-username/bloom-beauty.git
+   git clone https://github.com/odetacocaj/Bloom_Beauty.git
 
 2. **Install dependencies for both backend and frontend:**
  
@@ -73,14 +73,18 @@ npm install
 cd backend
 
 create .env file in backend root folder and add:
-MONGO_URI=your-mongodb-connection-string
-JWT_SECRET=your-secret-key
+API_URL= your_api_url
+CONNECTION_STRING=your-mongodb-connection-string
+secret=your-secret-key
 
 npm start
 
 3. **Running the frontend:**
 
 cd frontend
+
+create .env file in frontend root folder and add:
+VITE_API_URL= your_api_url ex:http://localhost:3000/api/v1
 
 npm run dev
 
